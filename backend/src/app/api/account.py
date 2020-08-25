@@ -16,7 +16,7 @@ from app.utils.responseutils import send_error_response, send_success_response
 def get_account(request, pk):
     try:
         account = AccountModel.objects.get(pk=pk)
-        serializer = AccountModel(account)
+        serializer = AccountSerializer(account)
         return send_success_response(msg="Account Fetched Successfully", payload=serializer.data)
     except AccountModel.DoesNotExist:
         return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
