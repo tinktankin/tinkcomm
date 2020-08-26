@@ -27,8 +27,8 @@ class SignupSerializer(serializers.Serializer):
         return self.validated_data
 
     def get_unique_company_code(self):
-        random_code = generate_random_string(5)
         while True:
+            random_code = generate_random_string(5)
             try:
                 CompanyModel.objects.get(code=random_code)
             except CompanyModel.DoesNotExist:
