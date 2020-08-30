@@ -5,9 +5,8 @@ class SubscriberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubscriberModel
-        fields = '__all__'
+        fields = ['email','first_name','last_name','full_name', 'status', 'group']
         read_only_fields = ['id', 'dateCreated', 'dateModified']
-        extra_kwargs = {'company':{'required': False}}
 
     def save(self, company):
         subscriber = SubscriberModel.objects.create(

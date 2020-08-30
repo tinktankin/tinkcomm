@@ -12,7 +12,7 @@ urlpatterns = [
     path('company/', include(company_urls)),
     path('auth/', include(auth_urls)),
     path('account/', include(account_urls)),
-    path('subscriber/', include(subscriber_urls)),
-    path('group/', include(group_urls)),
+    path('subscriber', include(subscriber_urls)),
+    path('group', include(group_urls)),
 
 ]
