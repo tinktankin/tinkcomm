@@ -22,18 +22,41 @@ def get_account(request, pk):
         return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
 
 
-# Get All Company
+# CRUD operations for accounts
 # Url: http://<your-domain>/api/v1/account
-# Method: GET
-@api_view(['GET', ])
+# Method: GET, POST, PUT, DELETE
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([])
 @authentication_classes([])
-def get_all_account(request):
-    accounts = AccountModel.objects.filter(company__id=request.company_id)
-    serializer = AccountSerializer(accounts, many = True)
-    return send_success_response(msg="Accounts Fetched Successfully", payload=serializer.data)
+def account_list(request):
+    user_id = request.user_id
+    company_id = request.company_id
 
+    if request.method == 'GET':
+        accounts = AccountModel.objects.filter(company__id=company_id)
+        serializer = AccountSerializer(accounts, many=True)
+        return send_success_response(msg="Accounts Fetched Successfully", payload=serializer.data)
 
+    elif request.method == 'POST':
+        serializer = AccountSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(company_id)
+            return send_success_response(msg="User signed up successfully", payload=serializer.data)
+        return send_error_response(msg="User Signup Failed", payload=serializer.errors)
+
+    elif request.method == 'PUT':
+        serializer = UpdateAccountSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.update(user_id)
+            return send_success_response(msg="User account updated successfully", payload=serializer.data)
+        return send_error_response(msg="User account could not be updated", payload=serializer.errors)
+
+    elif request.method == 'DELETE':
+        account = AccountModel.objects.filter(id=user_id)
+        account.update(status='INACTIVE')
+        return send_success_response(msg="User account deleted successfully")
+
+"""
 # Create account
 # Url: http://<your-domain>/api/v1/account/signup
 # Method: POST
@@ -78,3 +101,4 @@ def delete_account(request):
     account = AccountModel.objects.filter(id=user_id)
     account.update(status='INACTIVE')
     return send_success_response(msg="User account deleted successfully")
+"""
