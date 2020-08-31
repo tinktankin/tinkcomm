@@ -19,8 +19,9 @@ def subscriber_list(request):
 
     elif request.method == 'POST':
         company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
-        serializer = SubscriberSerializer(data=request.data)
+        subscriber = SubscriberModel(company=company)
+        serializer = SubscriberSerializer(subscriber, data=request.data)
         if serializer.is_valid():
-            serializer.save(company)
+            serializer.save()
             return send_success_response(msg="Subscriber Added successfully", payload=serializer.data)
         return send_error_response(msg="Subscriber Not Added", payload=serializer.errors)

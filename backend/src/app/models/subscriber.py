@@ -50,6 +50,9 @@ class SubscriberModel(BaseModel):
     # date_of_incorporation = models.DateField(verbose_name='Incorporation Date', max_length=255, null=True)
     # employees = models.CharField(verbose_name='Employees', max_length=255)
 
+    class Meta:
+        unique_together = ('company', 'email')
+
 
     def __str__(self):
         return f"{self.email} - {self.company_id}"
