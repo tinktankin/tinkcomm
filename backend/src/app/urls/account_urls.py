@@ -1,11 +1,9 @@
 from django.urls import path
 
-from app.api.account import (
-    get_account,
-    get_all_account,
-)
+from app.api import account
 
 urlpatterns = [
-    path('', get_all_account),
-    path('<int:pk>', get_account),
+    path('', account.account_list),
+    path('<int:pk>', account.get_account),
 ]
+
