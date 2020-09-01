@@ -1,7 +1,8 @@
 from django.urls import path
 
-from app.api.group import create_group
+from app.api.group import group_list, group_detail
 
 urlpatterns = [
-    path('', create_group),
+    path('', group_list),
+    path('<int:pk>', group_detail),
 ]
