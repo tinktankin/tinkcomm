@@ -3,18 +3,19 @@ from rest_framework import status
 
 from app.models.account import  AccountModel
 from app.serializers.account import AccountSerializer
+from app.serializers.company import CompanyModel
 from app.utils.stringutils import is_string_empty
 from app.utils.responseutils import send_error_response, send_success_response
 
 # Create And List Accounts
-# Url: http://<your-domain>/api/v1/accounts/<pk>
+# Url: http://<your-domain>/api/v1/accounts/
 # Method: GET
 @api_view(['GET', 'POST', ])
 @permission_classes([])
 @authentication_classes([])
 def account_list(request):
     if request.method == 'GET':
-        return getAllAccount(request)
+        return getAll(request)
     if request.method == 'POST':
         return create(request)
 
@@ -26,25 +27,25 @@ def account_list(request):
 @authentication_classes([])
 def account_detail(request, pk):
 
+    account = get_object(pk)
+    if account == None:
+        return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
+
     if request.method == 'GET':
-        return getAccount(request, pk)
+        return get(account)
     if request.method == 'PUT':
-        return update(request, pk)
+        return update(request, account)
     if request.method == 'DELETE':
-        return destroy(request, pk)
+        return destroy(account)
     
 # Get Account By Id
-def getAccount(request, pk=None):
-    try:
-        account = AccountModel.objects.get(pk=pk)
-        serializer = AccountSerializer(account)
-        return send_success_response(msg="Account Fetched Successfully", payload=serializer.data)
-    except AccountModel.DoesNotExist:
-        return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
+def get(account):
+    serializer = AccountSerializer(account)
+    return send_success_response(msg="Account Fetched Successfully", payload=serializer.data)
 
 
 # Get All Account
-def getAllAccount(request):
+def getAll(request):
     accounts = AccountModel.objects.filter(company__id=request.company_id)
     serializer = AccountSerializer(accounts, many=True)
     return send_success_response(msg="Accounts Fetched Successfully", payload=serializer.data)
@@ -53,31 +54,27 @@ def getAllAccount(request):
 
 # Create accounts
 def create(request):
-    serializer = AccountSerializer(data=request.data)
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    account = AccountModel(company=company)
+    serializer = AccountSerializer(account, data=request.data)
     if serializer.is_valid():
-        serializer.save(request.company_id)
+        serializer.save()
         return send_success_response(msg="Account created up successfully", payload=serializer.data)
-    return send_error_response(msg="Failed to create account", payload=serializer.errors)
+    return send_error_response(msg="Validation Errors", payload=serializer.errors)
 
 
 
 # Update accounts
-def update(request, pk=None):
-    account = get_object(pk)
-    if account == None:
-        return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
+def update(request, account):
     serializer = AccountSerializer(account, data=request.data, partial=True)
     if serializer.is_valid():
-        serializer.update()
+        serializer.save()
         return send_success_response(msg="Account updated successfully", payload=serializer.data)
-    return send_error_response(msg="Failed to create account", payload=serializer.errors)
+    return send_error_response(msg="Validation Error", payload=serializer.errors)
 
 
-# Update accounts
-def destroy(request, pk=None):
-    account = get_object(pk)
-    if account == None:
-        return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
+# Delete accounts
+def destroy(account):
     account.delete()
     return send_success_response(msg="User account deleted successfully")
 
