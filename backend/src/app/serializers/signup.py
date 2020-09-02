@@ -22,15 +22,17 @@ class SignupSerializer(serializers.Serializer):
                 last_name=self.validated_data['last_name'],
                 email=self.validated_data['email'],
                 password=self.validated_data['password'],
-                company=company
+                company=company,
+                gender='N'
             )
         return self.validated_data
 
     def get_unique_company_code(self):
+        random_code = generate_random_string(5)
         while True:
-            random_code = generate_random_string(5)
             try:
                 CompanyModel.objects.get(code=random_code)
+                random_code = generate_random_string(5)
             except CompanyModel.DoesNotExist:
                 break
         return random_code

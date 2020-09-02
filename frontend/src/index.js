@@ -10,7 +10,6 @@ import { UserProvider } from "./context/UserContext";
 import { LayoutProvider } from "./context/LayoutContext";
 
 ReactDOM.render(
-  <React.StrictMode>
     <LayoutProvider>
       <UserProvider>
         <ThemeProvider theme={Themes.default}>
@@ -18,8 +17,7 @@ ReactDOM.render(
           <App />
         </ThemeProvider>
       </UserProvider>
-    </LayoutProvider>
-  </React.StrictMode>,
+    </LayoutProvider>,
   document.getElementById('root')
 );
 

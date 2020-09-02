@@ -11,7 +11,6 @@ class JWTAuthenticationMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-
         try:
             PUBLIC_URLS.index(request.path)
             return self.get_response(request)
@@ -28,7 +27,7 @@ class JWTAuthenticationMiddleware:
         payload  = decode_token(jwt_token)
         if payload == None: 
             return self.unauthorized_response('Invalid Token')
-
+    
         request.user_id = payload['user_id']
         request.company_id = payload['company_id']
         response = self.get_response(request)

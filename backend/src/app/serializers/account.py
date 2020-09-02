@@ -15,7 +15,6 @@ class AccountSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'dateCreated', 'dateModified']
         extra_kwargs = {
             'gender': {'required': False},
-            'status': {'required': False},
             'password': {'write_only': True},
             'company': {'write_only': True},
         }
@@ -27,36 +26,27 @@ class AccountSerializer(serializers.ModelSerializer):
             try:
                 AccountModel.objects.create(
                     first_name=self.validated_data['first_name'],
-                    status='ACTIVE',
+                    status=self.validated_data['status'],
                     last_name=self.validated_data['last_name'],
                     email=self.validated_data['email'],
                     password=self.validated_data['password'],
-                    company=CompanyModel.objects.get(id=company_id)
+                    company=CompanyModel.objects.get(id=company_id),
+                    gender=self.validated_data['gender']
                 )
             except IntegrityError:
                 raise serializers.ValidationError({'email': "email already in use"})
             return self.validated_data
         else:
             raise serializers.ValidationError({'password': "passwords must match"})
-
-    def update(self, id):
-        email = self.validated_data['email']
-        first_name = self.validated_data['first_name']
-        last_name = self.validated_data['last_name']
-        AccountModel.objects.filter(id=id).update(email=email, first_name=first_name, last_name=last_name)
-
-        return self.validated_data
-
-
-class UpdateAccountSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    first_name = serializers.CharField(max_length=225)
-    last_name = serializers.CharField(max_length=225)
-
-    def update(self, id):
-        email = self.validated_data['email']
-        first_name = self.validated_data['first_name']
-        last_name = self.validated_data['last_name']
-        AccountModel.objects.filter(id=id).update(email=email, first_name=first_name, last_name=last_name)
-
-        return self.validated_data
+    
+    def update(self):
+        try:
+            self.instance.first_name = self.validated_data.get('first_name', self.instance.first_name)
+            self.instance.last_name = self.validated_data.get('last_name', self.instance.last_name)
+            self.instance.email = self.validated_data.get('email', self.instance.email)
+            self.instance.status = self.validated_data.get('status', self.instance.status)
+            self.instance.gender = self.validated_data.get('gender', self.instance.gender)
+            self.instance.save()
+            return self.instance
+        except IntegrityError:
+            raise serializers.ValidationError({'email': "email already in use"})
