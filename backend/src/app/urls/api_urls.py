@@ -11,7 +11,7 @@ from app.urls import group_urls
 urlpatterns = [
     path('companies/', include(company_urls)),
     path('auth/', include(auth_urls)),
-    path('account/', include(account_urls)),
-    path('subscriber/', include(subscriber_urls)),
-    path('group/', include(group_urls)),
+    path('accounts/', include(account_urls)),
+    path('subscribers/', include(subscriber_urls)),
+    path('groups/', include(group_urls)),
 ]

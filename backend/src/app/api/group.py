@@ -8,53 +8,74 @@ from app.utils.responseutils import send_error_response, send_success_response
 
 
 # List all groups, or create a new group
-# Url: http://<your-domain>/api/v1/group/
+# Url: http://<your-domain>/api/v1/groups/
 # Method: GET, POST
 @api_view(['GET','POST', ])
 @permission_classes([])
 @authentication_classes([])
 def group_list(request):
     if request.method == 'GET':
-        groups = GroupModel.objects.filter(company_id=request.company_id)
-        serializer = GroupSerializer(groups, many=True)
-        return send_success_response(msg="Groups Found", payload=serializer.data)
+        return getAll(request)
 
-    elif request.method == 'POST':
-        company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
-        group = GroupModel(company=company)
-        serializer = GroupSerializer(group, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return send_success_response(msg="Group Created successfully", payload=serializer.data)
-        return send_error_response(msg="Unable To Add Group", payload=serializer.errors)
+    if request.method == 'POST':
+        return create(request)
 
 
 # Get, Update or Delete Group By Id
-# Url: http://<your-domain>/api/v1/group/<pk>
+# Url: http://<your-domain>/api/v1/groups/<pk>
 # Method: GET, PUT, DELETE
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([])
 @authentication_classes([])
 def group_detail(request, pk):
-    try:
-        group = GroupModel.objects.get(pk=pk)
-    except GroupModel.DoesNotExist:
+    group = get_object(pk)
+    if group == None:
         return send_error_response(msg="Group Not Found", code=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = GroupSerializer(group)
-        return send_success_response(msg="Group Found", payload=serializer.data)
+        return get(group)
+    if request.method == 'PUT':
+        return update(request, group)
+    if request.method == 'DELETE':
+        return destroy(group)
 
-    elif request.method == 'PUT':
-        serializer = GroupSerializer(group, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return send_success_response(msg="Group Details Updated Successfully", payload=serializer.data)
-        return send_error_response(msg="Unable To Update Group Details", payload=serializer.errors)
+# Get All Group
+def getAll(request):
+    groups = GroupModel.objects.filter(company__id=request.company_id)
+    serializer = GroupSerializer(groups, many=True)
+    return send_success_response(msg="Groups Fetched Successfully", payload=serializer.data)
 
-    elif request.method == 'DELETE':
-        operation = group.delete()
-        if operation:
-            return send_success_response(msg="Group Deleted Successfully")
-        else:
-            return send_error_response(msg="Unable To Delete Group")
+# Create Group 
+def create(request):
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    group = GroupModel(company=company)
+    serializer = GroupSerializer(group, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return send_success_response(msg="Group Created successfully", payload=serializer.data)
+    return send_error_response(msg="Validation Error", payload=serializer.errors)
+
+# Get group by pk
+def get(group):
+    serializer = GroupSerializer(group)
+    return send_success_response(msg="Group Fetched Successfully", payload=serializer.data)
+
+#Update Group by pk
+def update(request, group):
+    serializer = GroupSerializer(group, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return send_success_response(msg="Group updated successfully", payload=serializer.data)
+    return send_error_response(msg="Validation Error", payload=serializer.errors)
+
+# Delete group
+def destroy(group):
+    group.delete()
+    return send_success_response(msg="Group deleted successfully")
+
+# Get Group By PK
+def get_object(pk=None):
+    try:
+        return GroupModel.objects.get(pk=pk)
+    except GroupModel.DoesNotExist:
+        return None
