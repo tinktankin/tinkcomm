@@ -8,7 +8,7 @@ from app.models.account import AccountModel
 from app.models.company import CompanyModel
 from app.utils.jwtutils import create_token
 
-# Signup Company
+# Signin User
 # Url: http://<your-domain>/api/v1/login
 # Method: POST
 @api_view(['POST', ])
@@ -30,7 +30,7 @@ def login(request):
     
     try:
         company = CompanyModel.objects.get(code=company_code, status='ACTIVE')
-        account = AccountModel.objects.get(email=email, password=password, status='ACTIVE', company=company.id)
+        account = AccountModel.objects.get(email=email, password=password, status='ACTIVE', company=company)
     except CompanyModel.DoesNotExist:
         return send_error_response('Invalid Company Code')
     except AccountModel.DoesNotExist:
@@ -38,6 +38,16 @@ def login(request):
     
     jwt_token = create_token({'company_id': company.id, 'user_id': account.id})
     return send_success_response("Login Successful", {'token':jwt_token})
+
+# Sign Out User
+# Url: http://<your-domain>/api/v1/logout
+# Method: POST
+@api_view(['POST', ])
+@permission_classes([])
+@authentication_classes([])
+def logout(request):
+    
+    return send_success_response(msg="Logout Successfully", payload={})
         
     
 

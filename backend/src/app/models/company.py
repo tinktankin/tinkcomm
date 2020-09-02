@@ -11,7 +11,7 @@ class CompanyModel(BaseModel):
     )
 
     
-    name            = models.CharField(verbose_name='Company Name', max_length=225)
+    name            = models.CharField(verbose_name='Company Name', max_length=225, unique=True)
     code            = models.CharField(verbose_name='Company Code', max_length=10)
     status          = models.CharField(verbose_name='Company Status', choices=STATUS_CHOICES, max_length=10)
 

@@ -5,9 +5,11 @@ from app.api.signup import (
 )
 from app.api.login import (
     login,
+    logout,
 )
 
 urlpatterns = [
     path('login', login),
+    path('logout', logout),
     path('signup', signup),
 ]

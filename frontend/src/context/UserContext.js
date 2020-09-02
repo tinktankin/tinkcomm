@@ -1,4 +1,6 @@
 import React from "react";
+import axios from "axios";
+import axisInstance from "../lib/axios";
 
 const UserStateContext = React.createContext();
 const UserDispatchContext = React.createContext();
@@ -45,29 +47,41 @@ const useUserDispatch = () => {
     return context;
 }
 
-const loginUser = (dispatch, login, password, history, setIsLoading, setError) => {
+const loginUser = (dispatch, login, password, companyCode, history, setIsLoading, setError) => {
     setError(false);
     setIsLoading(true);
   
-    if (!!login && !!password) {
-        setTimeout(() => {
-            localStorage.setItem('id_token', 1)
+    if (!!login && !!password && !!companyCode) {
+        axios.post("http://localhost:8000/api/v1/auth/login", {"company_code":companyCode, "email":login, "password":password})
+        .then((response) => {
+            localStorage.setItem('id_token', response.data.data.token)
             setError(null)
             setIsLoading(false)
             dispatch({ type: 'LOGIN_SUCCESS' })
             history.push('/')
-        }, 2000);
+        })
+        .catch((error) => {
+            // dispatch({ type: "LOGIN_FAILURE" });
+            setError(true);
+            setIsLoading(false);
+        });
     } else {
-        dispatch({ type: "LOGIN_FAILURE" });
+        // dispatch({ type: "LOGIN_FAILURE" });
         setError(true);
         setIsLoading(false);
     }
 }
 
 function signOut(dispatch, history) {
-    localStorage.removeItem("id_token");
-    dispatch({ type: "SIGN_OUT_SUCCESS" });
-    history.push("/login");
+    axisInstance.post("/auth/logout", {})
+    .then(res => {
+        localStorage.removeItem("id_token");
+        dispatch({ type: "SIGN_OUT_SUCCESS" });
+        history.push("/login");
+    })
+    .catch(err =>{
+        console.log(err)
+    })
 }
 
 export { UserProvider, useUserState, useUserDispatch, loginUser, signOut };

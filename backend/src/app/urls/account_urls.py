@@ -1,9 +1,8 @@
-from django.urls import path
+from django.urls import path,include
 
-from app.api import account
+from app.api.account import account_list, account_detail
 
 urlpatterns = [
-    path('', account.account_list),
-    path('<int:pk>', account.get_account),
+   path('', account_list),
+    path('<int:pk>', account_detail),
 ]
-
