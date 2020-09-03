@@ -63,7 +63,7 @@ def get(subscriber):
 def update(request, subscriber):
     serializer = SubscriberSerializer(subscriber, data=request.data, partial=True)
     if serializer.is_valid():
-        serializer.update()
+        serializer.save()
         return send_success_response(msg="subscriber updated successfully", payload=serializer.data)
     return send_error_response(msg="Validation Error", payload=serializer.errors)
 
