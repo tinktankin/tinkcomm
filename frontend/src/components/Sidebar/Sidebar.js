@@ -13,6 +13,7 @@ import classNames from "classnames";
 import {
     Home as HomeIcon,
     ArrowBack as ArrowBackIcon,
+    Group as GroupIcon
 } from "@material-ui/icons";
 
 // context
@@ -26,7 +27,8 @@ import {
 import SidebarLink from "./components/SidebarLink/SidebarLink";
 
 const structure = [
-    { id: 0, label: "Dashboard", link: "/", icon: <HomeIcon /> },
+    { id: 0, label: "Dashboard", link: "/app/dashboard", icon: <HomeIcon /> },
+    { id: 1, label: "Group", link: "/app/group", icon: <GroupIcon /> },
 ];
 function Sidebar({ location }) {
     const classes = useStyles();

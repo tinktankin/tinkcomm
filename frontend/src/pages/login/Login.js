@@ -4,6 +4,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
+import Fade from "@material-ui/core/Fade";
 import Avatar from '@material-ui/core/Avatar';
 import Link from '@material-ui/core/Link';
 import Container from '@material-ui/core/Container';
@@ -80,6 +81,11 @@ function Login(props) {
                     value={passwordValue}
                     onChange={e => setPasswordValue(e.target.value)}
                 />
+                <Fade in={error}>
+                <Typography color="secondary" className={classes.errorMessage}>
+                  Something is wrong with your credentials!
+                </Typography>
+              </Fade>
             {/* <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
@@ -89,7 +95,7 @@ function Login(props) {
                 ) : (
                   <Button
                     disabled={
-                        emailValue.length === 0 || passwordValue.length === 0 || companyCodeValue.length ==0
+                        emailValue.length === 0 || passwordValue.length === 0 || companyCodeValue.length === 0
                     }
                     onClick={() =>
                       loginUser(
@@ -111,15 +117,6 @@ function Login(props) {
                     Login
                   </Button>
                 )}
-                {/* <Button
-                    type="button"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                >
-                    Sign In
-                </Button> */}
                 <Grid container>
                     <Grid item xs>
                     <Link href="#" variant="body2">
