@@ -2,6 +2,8 @@ import React from "react";
 import axios from "axios";
 import axisInstance from "../service/axios";
 import LocalStorageService from "../service/LocalStorageService";
+import { BASE_URL } from "../utils/constant";
+
 const localStorageService = LocalStorageService.getService();
 
 const UserStateContext = React.createContext();
@@ -54,9 +56,9 @@ const loginUser = (dispatch, login, password, companyCode, history, setIsLoading
     setIsLoading(true);
   
     if (!!login && !!password && !!companyCode) {
-        axios.post("http://localhost:8000/api/v1/auth/login", {"company_code":companyCode, "email":login, "password":password})
+        axios.post(BASE_URL + "/auth/login", {"company_code":companyCode, "email":login, "password":password})
         .then((response) => {
-            localStorageService.setToken(response.data.data.token)
+            localStorageService.setToken(response.data.payload.token)
             setError(null)
             setIsLoading(false)
             dispatch({ type: 'LOGIN_SUCCESS' })

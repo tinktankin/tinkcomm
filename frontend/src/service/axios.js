@@ -1,10 +1,12 @@
 import axios from "axios";
 import LocalStorageService from "./LocalStorageService";
+import { BASE_URL } from "../utils/constant"; 
+
 const localStorageService = LocalStorageService.getService();
 
 // Set config defaults when creating the instance
 const instance = axios.create({
-    baseURL: 'http://localhost:8000/api/v1'
+    baseURL: BASE_URL
 });
   
 // Alter defaults after instance has been created
@@ -28,6 +30,10 @@ instance.interceptors.response.use(response => {
     return response;
 }, error => {
     console.log(error);
+    if(error?.response?.status === 401) {
+        localStorageService.clearToken(); 
+        window.history.go();  
+    }
     return Promise.reject(error);
 });
 
