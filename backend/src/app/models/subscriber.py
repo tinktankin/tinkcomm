@@ -15,6 +15,7 @@ class SubscriberModel(BaseModel):
     STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
         ('INACTIVE', 'InActive'),
+        ('DUPLICATE', 'Duplicate')
     )
 
     company                 = models.ForeignKey(CompanyModel, verbose_name='Company', on_delete=models.CASCADE)
@@ -22,7 +23,7 @@ class SubscriberModel(BaseModel):
     first_name              = models.CharField(verbose_name='First Name', max_length=255)
     middle_name             = models.CharField(verbose_name='Middle Name', max_length=255, null=True)
     last_name               = models.CharField(verbose_name='Last Name', max_length=255)
-    status                  = models.CharField(verbose_name='Susbcriber Status', choices=STATUS_CHOICES, max_length=10)
+    status                  = models.CharField(verbose_name='Susbcriber Status', choices=STATUS_CHOICES, max_length=10, default='ACTIVE')
     email                   = models.EmailField(verbose_name='Email Address', max_length=255)
     group                   = models.ManyToManyField(GroupModel)
     company_name            = models.CharField(verbose_name='Company Name', max_length=255, null=True)
@@ -51,7 +52,7 @@ class SubscriberModel(BaseModel):
     employees               = models.CharField(verbose_name='Employees', max_length=255, null=True)
 
     class Meta:
-        unique_together = ('company', 'email')
+        unique_together = ('company', 'email', 'status')
 
 
     def __str__(self):
