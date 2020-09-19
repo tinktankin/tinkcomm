@@ -92,6 +92,39 @@ def get_object(pk=None):
     except SubscriberModel.DoesNotExist:
         return None
 
+# Excel or CSV File Format
+# The sequence of column should be same and as follows
+# 1st Column: First Name (Mandatory Field)
+# 2nd Column: Middle Name (Optional Field)
+# 3rd Column: Last Name (Mandatory Field)
+# 4th Column: Full Name (Optional Field)
+# 5th Column: Email (Mandatory Field)
+# 6th Column: Alternate Email (Optional Field)
+# 7th Column: Phone Number (Optional Field, Integer Only)
+# 8th Column: Alternate Phone Number (Optional Field, Integer Only)
+# 9th Column: Status (Optional Field)
+# 10th Column: Group (Optional Field)
+# 11th Column: Company Name (Optional Field)
+# 12th Column: Designation (Optional Field)
+# 13th Column: City (Optional Field)
+# 14th Column: Address (Optional Field)
+# 15th Column: State (Optional Field)
+# 16th Column: Country (Optional Field)
+# 17th Column: Zip Code (Optional Field)
+# 18th Column: Gender (Optional Field)
+# 19th Column: Title (Optional Field)
+# 20th Column: Department (Optional Field)
+# 21st Column: University (Optional Field)
+# 22nd Column: Degree (Optional Field)
+# 23rd Column: Passing Year (Optional Field)
+# 24th Column: College (Optional Field)
+# 25th Column: Industry (Optional Field)
+# 26th Column: Key Skills (Optional Field)
+# 27th Column: Total Exp (Optional Field)
+# 28th Column: Years of business (Optional Field)
+# 29th Column: Turnover (Optional Field)
+# 30th Column: Date of Incorporation (Optional Field)
+# 31st Column: Employees (Optional Field)
 # Upload Subscriber
 def upload(request):
     company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
@@ -180,7 +213,6 @@ def update_or_create_method(column,company):
             total_exp=column[26],
             years_business=column[27],
             turnover=column[28],
-            employees=column[30]
         )
     )
     subscriber.group.clear()
