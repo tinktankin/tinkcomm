@@ -18,14 +18,14 @@ export default function List(props) {
     const [data, setData] = useState(["Loading Data..."]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const changeTable = (page, sortOrder) => {
-        console.log(page, sortOrder);
+    const changeTable = (page, searchText, sortOrder) => {
+        console.log(page, searchText, sortOrder);
         setIsLoading(true);
-        xhrRequest(page, sortOrder);
+        xhrRequest(page, searchText, sortOrder);
     }
 
-    const xhrRequest = (page, sortOrder = {}) => {
-        axios.get(props.url + "?page="+page)
+    const xhrRequest = (page=0, searchText="", sortOrder = {name:"", direction:""}) => {
+        axios.get(props.url + "?searchText=" + searchText +"&page="+page +"&sort="+sortOrder.name+"&sortDir="+ sortOrder.direction)
         .then(res => {
             setIsLoading(false);
             setData(res.data.payload);
@@ -49,13 +49,16 @@ export default function List(props) {
         download: false,
         print: false,
         onTableChange: (action, tableState) => {
-            console.log(action, tableState);
+            // console.log(action, tableState);
             switch (action) {
                 case 'changePage':
-                    changeTable(tableState.page, tableState.sortOrder);
+                    changeTable(tableState.page, tableState.searchText, tableState.sortOrder);
                     break;
                 case 'sort':
-                    changeTable(tableState.page, tableState.sortOrder);
+                    changeTable(tableState.page, tableState.searchText, tableState.sortOrder);
+                    break;
+                case 'search':
+                    changeTable(tableState.page, tableState.searchText, tableState.sortOrder);
                     break;
                 default:
                     console.log('action not handled.');
@@ -64,7 +67,7 @@ export default function List(props) {
     };
 
     useEffect(() => {
-        xhrRequest(0, 10);   
+        xhrRequest();   
     }, []);
     
     return (

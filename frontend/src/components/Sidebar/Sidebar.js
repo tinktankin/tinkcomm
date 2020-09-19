@@ -3,18 +3,17 @@ import Drawer from "@material-ui/core/Drawer";
 import IconButton from "@material-ui/core/IconButton";
 import List from "@material-ui/core/List";
 
+import PeopleIcon from '@material-ui/icons/People';
+import HomeIcon from '@material-ui/icons/Home';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import CollectionsIcon from '@material-ui/icons/Collections';
+
 
 // styles
 import useStyles from "./styles";
 import { useTheme } from "@material-ui/styles";
 import { withRouter } from "react-router-dom";
 import classNames from "classnames";
-
-import {
-    Home as HomeIcon,
-    ArrowBack as ArrowBackIcon,
-    Group as GroupIcon
-} from "@material-ui/icons";
 
 // context
 import {
@@ -28,7 +27,8 @@ import SidebarLink from "./components/SidebarLink/SidebarLink";
 
 const structure = [
     { id: 0, label: "Dashboard", link: "/app/dashboard", icon: <HomeIcon /> },
-    { id: 1, label: "Group", link: "/app/group", icon: <GroupIcon /> },
+    { id: 1, label: "Groups", link: "/app/groups", icon: <CollectionsIcon /> },
+    { id: 2, label: "Subscribers", link: "/app/subscribers", icon: <PeopleIcon /> },
 ];
 function Sidebar({ location }) {
     const classes = useStyles();
