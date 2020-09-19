@@ -102,7 +102,8 @@ def get_object(pk=None):
 # 6th Column: Alternate Email (Optional Field)
 # 7th Column: Phone Number (Optional Field, Integer Only)
 # 8th Column: Alternate Phone Number (Optional Field, Integer Only)
-# 9th Column: Status (Optional Field)
+# 9th Column: Status (Optional Field, by default  its "ACTIVE" for new subscriber and
+# "DUPLICATE" for existing subscriber)
 # 10th Column: Group (Optional Field)
 # 11th Column: Company Name (Optional Field)
 # 12th Column: Designation (Optional Field)
@@ -156,6 +157,7 @@ def create_method(column, company):
         full_name=column[3],
         email=column[4],
         alternate_email=column[5],
+        status="ACTIVE",
         company_name=column[10],
         designation=column[11],
         city=column[12],
@@ -176,13 +178,6 @@ def create_method(column, company):
     )
     condition_check(column, subscriber, company)
 
-    if column[8] is not None:
-        subscriber.status = column[8]
-    else:
-        subscriber.status = "ACTIVE"
-
-    subscriber.save()
-
 def update_or_create_method(column,company):
     subscriber, created = SubscriberModel.objects.update_or_create(
         email=column[4],
@@ -200,13 +195,11 @@ def update_or_create_method(column,company):
             address=column[13],
             state=column[14],
             country=column[15],
-            zip_code=column[16],
             gender=column[17],
             title=column[18],
             department=column[19],
             university=column[20],
             degree=column[21],
-            passing_year=column[22],
             college=column[23],
             industry=column[24],
             key_skills=column[25],
@@ -231,11 +224,11 @@ def condition_check(column, subscriber, company):
     if column[22] is not None:
         subscriber.passing_year = int(column[22])
 
-    if column[30] is not None:
-        subscriber.employees = int(column[30])
-
     if column[29] is not None:
         subscriber.date_of_incorporation = pd.to_datetime(column[29])
+
+    if column[30] is not None:
+        subscriber.employees = int(column[30])
 
     subscriber.save()
 
