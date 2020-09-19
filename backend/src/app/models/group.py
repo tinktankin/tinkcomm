@@ -10,7 +10,7 @@ class GroupModel(BaseModel):
     )
 
     company         = models.ForeignKey(CompanyModel, verbose_name='Company', on_delete=models.CASCADE)
-    name            = models.CharField(verbose_name='Group Name', max_length=225)
+    name            = models.CharField(verbose_name='Group Name', max_length=225, null=False)
     description     = models.CharField(verbose_name='Description', max_length=255, null=True)
     status          = models.CharField(verbose_name='Group Status', choices=STATUS_CHOICES, max_length=10, default='ACTIVE')
 
