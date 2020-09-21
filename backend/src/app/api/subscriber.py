@@ -60,10 +60,12 @@ def getAll(request):
 #Create Subscriber
 def create(request):
     company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    group = GroupModel.objects.get(name="General", company=company)
     subscriber = SubscriberModel(company=company)
     serializer = SubscriberSerializer(subscriber, data=request.data)
     if serializer.is_valid():
         serializer.save()
+        subscriber.group.add(group)
         return send_success_response(msg="Subscriber Created Successfully", payload=serializer.data)
     return send_error_response(msg="Validation Error", payload=serializer.errors)
 
@@ -129,6 +131,7 @@ def get_object(pk=None):
 # Upload Subscriber
 def upload(request):
     company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    group = GroupModel.objects.get(name="General", company=company)
     input_file = request.data['file']
 
     if input_file.name.endswith('.csv'):
@@ -141,14 +144,14 @@ def upload(request):
     df = df.replace({np.nan: None})
     for _,column in df.iterrows():
         if not SubscriberModel.objects.filter(email=column[4]).exists():
-            create_method(column, company)
+            create_method(column, company, group)
 
         elif SubscriberModel.objects.filter(email=column[4], status="ACTIVE").exists():
-            update_or_create_method(column, company)
+            update_or_create_method(column, company, group)
 
     return send_success_response(msg="Subscriber Uploaded successfully")
 
-def create_method(column, company):
+def create_method(column, company, group):
     subscriber = SubscriberModel.objects.create(
         company=company,
         first_name=column[0],
@@ -176,9 +179,9 @@ def create_method(column, company):
         years_business=column[27],
         turnover=column[28],
     )
-    condition_check(column, subscriber, company)
+    condition_check(column, subscriber, company, group)
 
-def update_or_create_method(column,company):
+def update_or_create_method(column, company, group):
     subscriber, created = SubscriberModel.objects.update_or_create(
         email=column[4],
         status="DUPLICATE",
@@ -209,9 +212,9 @@ def update_or_create_method(column,company):
         )
     )
     subscriber.group.clear()
-    condition_check(column, subscriber, company)
+    condition_check(column, subscriber, company, group)
 
-def condition_check(column, subscriber, company):
+def condition_check(column, subscriber, company, group):
     if column[6] is not None:
         subscriber.phone_number = int(column[6])
 
@@ -231,6 +234,7 @@ def condition_check(column, subscriber, company):
         subscriber.employees = int(column[30])
 
     subscriber.save()
+    subscriber.group.add(group)
 
     if column[9] is not None:
         grp_arr = column[9].split("|")
