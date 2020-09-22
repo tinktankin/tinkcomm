@@ -5,6 +5,7 @@ from app.models.company import CompanyModel
 from app.models.group import GroupModel
 from app.serializers.group import GroupSerializer
 from app.utils.responseutils import send_error_response, send_success_response
+from app.utils.pagination import CustomPagination
 
 
 # List all groups, or create a new group
@@ -41,9 +42,19 @@ def group_detail(request, pk):
 
 # Get All Group
 def getAll(request):
-    groups = GroupModel.objects.filter(company__id=request.company_id)
-    serializer = GroupSerializer(groups, many=True)
-    return send_success_response(msg="Groups Fetched Successfully", payload=serializer.data)
+    paginator = CustomPagination()
+    groups = GroupModel.objects.filter(company__id=request.company_id).order_by('id')
+    page = paginator.paginate_queryset(groups, request)
+
+    if page is not None:
+        serializer = GroupSerializer(page, many=True)
+        result = paginator.get_paginated_response(serializer.data)
+        data = result.data
+    else:
+        serializer = GroupSerializer(groups, many=True)
+        data = serializer.data
+
+    return send_success_response(msg="Groups Fetched Successfully", payload=data)
 
 # Create Group 
 def create(request):
