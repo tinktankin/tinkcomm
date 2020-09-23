@@ -25,7 +25,7 @@ class SubscriberModel(BaseModel):
     last_name               = models.CharField(verbose_name='Last Name', max_length=255)
     status                  = models.CharField(verbose_name='Susbcriber Status', choices=STATUS_CHOICES, max_length=10, default='ACTIVE')
     email                   = models.EmailField(verbose_name='Email Address', max_length=255)
-    group                   = models.ManyToManyField(GroupModel)
+    group                   = models.ManyToManyField(GroupModel, blank=True)
     company_name            = models.CharField(verbose_name='Company Name', max_length=255, null=True)
     designation             = models.CharField(verbose_name='Designation', max_length=255, null=True)
     alternate_email         = models.EmailField(verbose_name='Alternate Email Address', max_length=255, null=True)

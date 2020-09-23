@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from app.models.account import AccountModel
 from app.models.company import CompanyModel
+from app.models.group import GroupModel
 from app.utils.stringutils import generate_random_string
 
 class SignupSerializer(serializers.Serializer):
@@ -25,6 +26,12 @@ class SignupSerializer(serializers.Serializer):
                 company=company,
                 gender='N'
             )
+        GroupModel.objects.create(
+            name="General",
+            company=company,
+            status="ACTIVE",
+            description="Common Group"
+        )
         return self.validated_data
 
     def get_unique_company_code(self):
