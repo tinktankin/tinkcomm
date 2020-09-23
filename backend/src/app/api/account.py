@@ -6,6 +6,7 @@ from app.serializers.account import AccountSerializer
 from app.serializers.company import CompanyModel
 from app.utils.stringutils import is_string_empty
 from app.utils.responseutils import send_error_response, send_success_response
+from app.utils.pagination import CustomPagination
 
 # Create And List Accounts
 # Url: http://<your-domain>/api/v1/accounts/
@@ -46,10 +47,19 @@ def get(account):
 
 # Get All Account
 def getAll(request):
+    paginator = CustomPagination()
     accounts = AccountModel.objects.filter(company__id=request.company_id)
-    serializer = AccountSerializer(accounts, many=True)
-    return send_success_response(msg="Accounts Fetched Successfully", payload=serializer.data)
+    page = paginator.paginate_queryset(accounts, request)
 
+    if page is not None:
+        serializer = AccountSerializer(page, many=True)
+        result = paginator.get_paginated_response(serializer.data)
+        data = result.data
+    else:
+        serializer = AccountSerializer(accounts, many=True)
+        data = serializer.data
+
+    return send_success_response(msg="Accounts Fetched Successfully", payload=data)
 
 
 # Create accounts

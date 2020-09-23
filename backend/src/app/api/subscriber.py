@@ -8,6 +8,7 @@ from app.models.subscriber import SubscriberModel
 from app.models.group import GroupModel
 from app.serializers.subscriber import SubscriberSerializer
 from app.utils.responseutils import send_error_response, send_success_response
+from app.utils.pagination import CustomPagination
 
 
 # List all subscribers, or create a new subscriber
@@ -53,9 +54,19 @@ def subscriber_upload(request):
 
 # Get All Subscribers
 def getAll(request):
-    subscribers = SubscriberModel.objects.filter(company__id=request.company_id)
-    serializer = SubscriberSerializer(subscribers, many=True)
-    return send_success_response(msg="Subscribers Fetched successfully", payload=serializer.data)
+    paginator = CustomPagination()
+    subscribers = SubscriberModel.objects.filter(company__id=request.company_id).order_by('id')
+    page = paginator.paginate_queryset(subscribers, request)
+
+    if page is not None:
+        serializer = SubscriberSerializer(page, many=True)
+        result = paginator.get_paginated_response(serializer.data)
+        data = result.data
+    else:
+        serializer = SubscriberSerializer(subscribers, many=True)
+        data = serializer.data
+
+    return send_success_response(msg="Subscribers Fetched successfully", payload=data)
 
 #Create Subscriber
 def create(request):
