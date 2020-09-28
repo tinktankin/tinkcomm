@@ -2,13 +2,14 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework import status
 import pandas as pd
 import numpy as np
+from django.db.models import Q
 
 from app.models.company import CompanyModel
 from app.models.subscriber import SubscriberModel
 from app.models.group import GroupModel
 from app.serializers.subscriber import SubscriberSerializer
 from app.utils.responseutils import send_error_response, send_success_response
-from app.utils.pagination import CustomPagination
+from app.utils.pagination import CustomPagination, sorting
 
 
 # List all subscribers, or create a new subscriber
@@ -54,8 +55,17 @@ def subscriber_upload(request):
 
 # Get All Subscribers
 def getAll(request):
+    query = request.GET.get('searchText', '')
+    if query:
+        text = request.GET['searchText']
+        queryset = (Q(email__icontains=text)) | (Q(first_name__icontains=text)) | (Q(last_name__icontains=text))
+        subscribers = SubscriberModel.objects.filter(Q(company__id=request.company_id) & queryset)
+    else:
+        subscribers = SubscriberModel.objects.filter(company__id=request.company_id)
+
+    subscribers = sorting(request, subscribers)
+
     paginator = CustomPagination()
-    subscribers = SubscriberModel.objects.filter(company__id=request.company_id).order_by('id')
     page = paginator.paginate_queryset(subscribers, request)
 
     if page is not None:
