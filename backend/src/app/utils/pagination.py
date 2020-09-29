@@ -20,3 +20,14 @@ class CustomPagination(PageNumberPagination):
             'page_size': int(self.request.GET.get('page_size', self.page_size)),
             'results': data
         })
+
+
+def sorting(request, obj):
+    column = request.GET.get('sort', '')
+    sort = request.GET.get('sortDir', '')
+    if column:
+        if sort == "ASC":
+            obj = obj.order_by(column)
+        elif sort == "DESC":
+            obj = obj.order_by('-' + column)
+    return obj

@@ -1,12 +1,13 @@
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
+from django.db.models import Q
 
 from app.models.account import  AccountModel
 from app.serializers.account import AccountSerializer
 from app.serializers.company import CompanyModel
 from app.utils.stringutils import is_string_empty
 from app.utils.responseutils import send_error_response, send_success_response
-from app.utils.pagination import CustomPagination
+from app.utils.pagination import CustomPagination, sorting
 
 # Create And List Accounts
 # Url: http://<your-domain>/api/v1/accounts/
@@ -57,8 +58,17 @@ def get(account):
 
 # Get All Account
 def getAll(request):
+    query = request.GET.get('searchText', '')
+    if query:
+        text = request.GET['searchText']
+        queryset = (Q(email__icontains=text)) | (Q(first_name__icontains=text)) | (Q(last_name__icontains=text))
+        accounts = AccountModel.objects.filter(Q(company__id=request.company_id) & queryset)
+    else:
+        accounts = AccountModel.objects.filter(company__id=request.company_id)
+
+    accounts = sorting(request, accounts)
+
     paginator = CustomPagination()
-    accounts = AccountModel.objects.filter(company__id=request.company_id)
     page = paginator.paginate_queryset(accounts, request)
 
     if page is not None:
