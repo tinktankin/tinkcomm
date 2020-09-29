@@ -30,8 +30,8 @@ def subscriber_list(request):
 @permission_classes([])
 @authentication_classes([])
 def subscriber_detail(request, pk):
-
-    subscriber = get_object(pk)
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    subscriber = get_object(company, pk)
     if subscriber == None:
         return send_error_response(msg="Subscriber Not Found", code=status.HTTP_404_NOT_FOUND)
 
@@ -51,6 +51,16 @@ def subscriber_upload(request):
 
     if request.method == 'POST':
         return upload(request)
+
+# Subscribers bulk delete by Id's
+# Url: http://<your-domain>/api/v1/subscribers/bulk_delete
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def subscriber_bulk_delete(request):
+
+    if request.method == 'POST':
+        return bulk_delete(request)
 
 # Get All Subscribers
 def getAll(request):
@@ -99,9 +109,9 @@ def destroy(subscriber):
     return send_success_response(msg="Subscriber deleted successfully")
 
 #Get Subscriber by pk
-def get_object(pk=None):
+def get_object(company, pk=None):
     try:
-        return SubscriberModel.objects.get(pk=pk)
+        return SubscriberModel.objects.get(company=company, pk=pk)
     except SubscriberModel.DoesNotExist:
         return None
 
@@ -252,3 +262,13 @@ def condition_check(column, subscriber, company, group):
         for grp in grp_arr:
             grp_obj, created = GroupModel.objects.get_or_create(name=grp, company=company)
             subscriber.group.add(grp_obj)
+
+# Bulk Delete Subscribers
+def bulk_delete(request):
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    ids = request.data['id']
+    for id in ids:
+        subscriber = get_object(company, id)
+        if subscriber is not None:
+            subscriber.delete()
+    return send_success_response(msg="Subscribers Deleted successfully")

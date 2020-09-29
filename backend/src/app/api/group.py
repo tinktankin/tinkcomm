@@ -29,7 +29,8 @@ def group_list(request):
 @permission_classes([])
 @authentication_classes([])
 def group_detail(request, pk):
-    group = get_object(pk)
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    group = get_object(company, pk)
     if group == None:
         return send_error_response(msg="Group Not Found", code=status.HTTP_404_NOT_FOUND)
 
@@ -39,6 +40,16 @@ def group_detail(request, pk):
         return update(request, group)
     if request.method == 'DELETE':
         return destroy(group)
+
+# Groups bulk delete by Id's
+# Url: http://<your-domain>/api/v1/groups/bulk_delete
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def group_bulk_delete(request):
+
+    if request.method == 'POST':
+        return bulk_delete(request)
 
 # Get All Group
 def getAll(request):
@@ -85,8 +96,18 @@ def destroy(group):
     return send_success_response(msg="Group deleted successfully")
 
 # Get Group By PK
-def get_object(pk=None):
+def get_object(company, pk=None):
     try:
-        return GroupModel.objects.get(pk=pk)
+        return GroupModel.objects.get(company=company, pk=pk)
     except GroupModel.DoesNotExist:
         return None
+
+# Bulk Delete Groups
+def bulk_delete(request):
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    ids = request.data['id']
+    for id in ids:
+        group = get_object(company, id)
+        if group is not None:
+            group.delete()
+    return send_success_response(msg="Groups Deleted successfully")
