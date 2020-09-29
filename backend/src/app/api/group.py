@@ -1,11 +1,12 @@
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework import status
+from django.db.models import Q
 
 from app.models.company import CompanyModel
 from app.models.group import GroupModel
 from app.serializers.group import GroupSerializer
 from app.utils.responseutils import send_error_response, send_success_response
-from app.utils.pagination import CustomPagination
+from app.utils.pagination import CustomPagination, sorting
 
 
 # List all groups, or create a new group
@@ -42,8 +43,17 @@ def group_detail(request, pk):
 
 # Get All Group
 def getAll(request):
+    query = request.GET.get('searchText', '')
+    if query:
+        text = request.GET['searchText']
+        queryset = (Q(name__icontains=text))
+        groups = GroupModel.objects.filter(Q(company__id=request.company_id) & queryset)
+    else:
+        groups = GroupModel.objects.filter(company__id=request.company_id)
+
+    groups = sorting(request, groups)
+
     paginator = CustomPagination()
-    groups = GroupModel.objects.filter(company__id=request.company_id).order_by('id')
     page = paginator.paginate_queryset(groups, request)
 
     if page is not None:
