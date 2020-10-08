@@ -24,7 +24,7 @@ class CustomPagination(PageNumberPagination):
 
 def sorting(request, obj):
     column = request.GET.get('sort', '')
-    sort = request.GET.get('sortDir', '')
+    sort = request.GET.get('sortDir', '').upper()
     if column:
         if sort == "ASC":
             obj = obj.order_by(column)
