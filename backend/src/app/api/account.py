@@ -28,8 +28,8 @@ def account_list(request):
 @permission_classes([])
 @authentication_classes([])
 def account_detail(request, pk):
-
-    account = get_object(pk)
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    account = get_object(company, pk)
     if account == None:
         return send_error_response(msg="Account Not Found", code=status.HTTP_404_NOT_FOUND)
 
@@ -39,6 +39,16 @@ def account_detail(request, pk):
         return update(request, account)
     if request.method == 'DELETE':
         return destroy(account)
+
+# Accounts bulk delete by Id's
+# Url: http://<your-domain>/api/v1/accounts/bulk_delete
+@api_view(['POST'])
+@permission_classes([])
+@authentication_classes([])
+def account_bulk_delete(request):
+
+    if request.method == 'POST':
+        return bulk_delete(request)
     
 # Get Account By Id
 def get(account):
@@ -99,8 +109,18 @@ def destroy(account):
     return send_success_response(msg="User account deleted successfully")
 
 # Get Account By PK
-def get_object(pk=None):
+def get_object(company, pk=None):
     try:
-        return AccountModel.objects.get(pk=pk)
+        return AccountModel.objects.get(company=company, pk=pk)
     except AccountModel.DoesNotExist:
         return None
+
+# Bulk Delete Accounts
+def bulk_delete(request):
+    company = CompanyModel.objects.get(id=request.company_id, status='ACTIVE')
+    ids = request.data['id']
+    for id in ids:
+        account = get_object(company, id)
+        if account is not None:
+            account.delete()
+    return send_success_response(msg="Accounts Deleted successfully")
