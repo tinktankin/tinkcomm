@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from app.utils.responseutils import send_success_response, send_error_response
 from django.core.mail import BadHeaderError, get_connection, send_mass_mail
 import threading
+import smtplib
 
 from app.models.subscriber import SubscriberModel
 from app.models.company import CompanyModel
@@ -20,6 +21,9 @@ from app.serializers.email import EmailSerializer
 def config_email(request):
     return create(request)
 
+# Requirement: Gmail -> Click On Manage your Google Account ->
+# Click On Security Tab -> Scroll down until you see "Less secure app access" ->
+# -> Click on It -> Then Allow less secure app :ON
 # Send Email
 # Url: http://<your-domain>/api/v1/email/
 # Method: POST
@@ -37,18 +41,23 @@ class EmailThread(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        with get_connection(
-                username=self.config.email_sender,
-                password=self.config.email_password,
-                host=self.config.smtp_server,
-                port=self.config.smtp_port,
-                use_tls=True
-        ) as connection:
-            try:
+        try:
+            with get_connection(
+                    username=self.config.email_sender,
+                    password=self.config.email_password,
+                    host=self.config.smtp_server,
+                    port=self.config.smtp_port,
+                    use_tls=True
+            ) as connection:
                 send_mass_mail(self.messages, fail_silently=True, connection=connection)
                 self.email.status = "COMPLETE"
-            except BadHeaderError:
-                self.email.status = "ERROR"
+
+        except smtplib.SMTPAuthenticationError:
+            self.email.status = "ERROR"
+
+        except BadHeaderError:
+            self.email.status = "ERROR"
+
         self.email.save()
 
 #Create Email Configuration
