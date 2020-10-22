@@ -5,6 +5,7 @@ import MUIDataTable from "mui-datatables";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import axios from "../../service/axios";
+import { isEmpty } from "../../utils/stringUtil";
 
 //components
 import { Typography } from "../../components/Wrappers";
@@ -12,8 +13,8 @@ import { Typography } from "../../components/Wrappers";
 export default function List(props) {
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [count, setCount] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(20);
+    const [count, setCount] = useState(10);
     const [sortOrder, setSortOrder] = useState({});
     const [data, setData] = useState(["Loading Data..."]);
     const [isLoading, setIsLoading] = useState(false);
@@ -24,14 +25,33 @@ export default function List(props) {
         xhrRequest(page, searchText, sortOrder);
     }
 
-    const xhrRequest = (page=0, searchText="", sortOrder = {name:"", direction:""}) => {
-        axios.get(props.url + "?searchText=" + searchText +"&page="+page +"&sort="+sortOrder.name+"&sortDir="+ sortOrder.direction)
+    const prepareQueryString = (page=0, searchText="", sortOrder={}) => {
+
+        console.log(page, searchText, sortOrder);
+        let queryString = "?";
+        if(!isEmpty(page)) {
+            queryString +=  "page="+(page+1);
+        } else {
+            queryString +=  "page=1";   
+        }
+
+        if(!isEmpty(searchText)) {
+            queryString += "&searchText=" + searchText;        
+        }
+        if(sortOrder.name && !isEmpty(sortOrder.name)) {
+            queryString += "&sort="+sortOrder.name+"&sortDir="+ (sortOrder.direction === "" ? "asc" : sortOrder.direction);    
+        }
+        return queryString;
+    }
+
+    const xhrRequest = (page=0, searchText="", sortOrder={}) => {
+        axios.get(props.url + prepareQueryString(page, searchText, sortOrder))
         .then(res => {
             setIsLoading(false);
-            setData(res.data.payload);
-            setPage(page);
-            setSortOrder(sortOrder);
-            setCount(res.data.payload.length)
+            setData(res.data.payload.results);
+            setPage(res.data.payload.page - 1);
+            setCount(res.data.payload.total);
+            setRowsPerPage(res.data.payload.page_size);
         })
         .catch(err => {console.log(err)})     
     }
@@ -48,8 +68,9 @@ export default function List(props) {
         sortOrder: sortOrder,
         download: false,
         print: false,
+        page: page,
         onTableChange: (action, tableState) => {
-            // console.log(action, tableState);
+            console.log(action, tableState);
             switch (action) {
                 case 'changePage':
                     changeTable(tableState.page, tableState.searchText, tableState.sortOrder);

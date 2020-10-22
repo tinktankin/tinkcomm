@@ -12,9 +12,9 @@ export default function Group(props) {
     const columns = [
         { name: "name", label: "Name", options: { filter: true, sort: true, }, },
         { name: "status", label: "Status", options: { filter: true, sort: true, }, },
-        { name: "description", label: "Description", options: { filter: false,sort: false, }, },
-        { name: "dateCreated", label: "Date Created", options: { filter: false,sort: false, }, },
-        { name: "dateModified", label: "Date Modified", options: { filter: false,sort: false, }, },
+        { name: "description", label: "Description", options: { filter: false, sort: false, }, },
+        { name: "dateCreated", label: "Date Created", options: { filter: false, sort: false, }, },
+        { name: "dateModified", label: "Date Modified", options: { filter: false, sort: false, }, },
     ];
     
     return (
