@@ -6,6 +6,8 @@ import useStyles from "./styles";
 //components
 import PageTitle from "../../components/PageTitle";
 import  List from "../../components/List";
+import {Button} from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 export default function Group(props) {
     const classes = useStyles();
@@ -21,6 +23,9 @@ export default function Group(props) {
         <>
             <PageTitle title="Group" />
             <List url="/groups" title="Group List" columns={columns}/>
+            <Link to="/app/groups/add">
+                <Button renderAs="button">Add Group</Button>
+            </Link>
         </>
     );
 }

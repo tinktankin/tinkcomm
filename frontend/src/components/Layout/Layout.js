@@ -11,6 +11,7 @@ import Sidebar from "../Sidebar";
 import Dashboard from "../../pages/dashboard";
 import Group from "../../pages/group";
 import Subscriber from "../../pages/subscriber";
+import AddGroup from "../../pages/group/add-group"
 
 // context
 import { useLayoutState } from "../../context/LayoutContext";
@@ -27,7 +28,10 @@ function Layout(props) {
                     {/* <div className={classes.fakeToolbar} /> */}
                     <Switch>
                         <Route path="/app/dashboard" component={Dashboard} />
-                        <Route path="/app/groups" component={Group} />
+                        
+                        <Route path="/app/groups/add" component={AddGroup} />
+                        <Route path="/app/groups" exact="true" component={Group} />
+                        
                         <Route path="/app/subscribers" component={Subscriber} />
                     </Switch>
                 </div>
