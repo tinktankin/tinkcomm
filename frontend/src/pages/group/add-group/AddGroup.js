@@ -4,18 +4,17 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Fade from "@material-ui/core/Fade";
-import Container from '@material-ui/core/Container';
 
 // context
-import { useUserDispatch} from "../../context/UserContext";
+import { useUserDispatch} from "../../../context/UserContext";
 
 //components
-import CopyRight from "../../components/CopyRight";
+import PageTitle from "../../../components/PageTitle";
 
 // styles
-import useStyles from "./styles";
+import useStyles from "../styles";
 import axios from "axios";
-import {BASE_URL} from "../../utils/constant";
+import {BASE_URL} from "../../../utils/constant";
 
 export default function AddGroup(props) {
     const classes = useStyles();
@@ -51,11 +50,9 @@ export default function AddGroup(props) {
     }
 
     return (
-        <Container component="main" maxWidth="xs">
+      <>
+        <PageTitle title="Add Group" />
         <div className={classes.paper}>
-            <Typography component="h1" variant="h5">
-            Add Group
-            </Typography>
             <form className={classes.form} noValidate>
                 <TextField
                     variant="outlined"
@@ -128,8 +125,7 @@ export default function AddGroup(props) {
                   </Button>
                 )}
             </form>
-            <CopyRight />
         </div>
-    </Container>
+      </>
     );
 }
